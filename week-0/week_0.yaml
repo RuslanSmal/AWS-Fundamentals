@@ -1,0 +1,25 @@
+Parameters: 
+  InstanceType:
+    Description: EC2 instance type configuration
+    Type: String
+    Default: t2.micro
+    AllovedValues:
+      - t2.nano
+      - t2.micro
+      - t2.smal
+  InstanceAmId:
+    Description: AMI Identifier for EC2 Instance
+    Type: String
+    Default: ami-009c5f630e96948cb
+
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref 'InstanceAmId'
+      InstanceType: !Ref 'InstanceType'
+
+Outputs:
+  PublicIP:
+    Description: EC2 public IP
+    Value: !GetAtt Ec2Instance.PublicIp

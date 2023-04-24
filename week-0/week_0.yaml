@@ -10,14 +10,16 @@ Parameters:
   ImageId:
     Description: AMI Identifier for EC2 Instance
     Type: String
-    Default: ami-009c5f630e96948cb
+    Default: ami-02d5619017b3e5162
 Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: ImageId
-      InstanceType: InstanceType
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+  IPAddress:
+    Type: AWS::EC2::EIP
 Outputs:
   InstanceIPAddress:
     Description: EC2 public IP
-    Value: EC2Instance.PublicIp
+    Value: !Ref IPAddress

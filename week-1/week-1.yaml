@@ -50,5 +50,7 @@ Resources:
         LaunchTemplateId: !Ref EC2InstanceTemplate
         Version: !GetAtt EC2InstanceTemplate.LatestVersionNumber
       MaxSize: '2'
-      MinSize: '1'
+      MinSize: '2'
       DesiredCapacity: '2'
+      VPCZoneIdentifier:
+        - subnet-0b536ac0f75c0b6ad

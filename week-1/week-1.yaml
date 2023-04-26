@@ -22,7 +22,7 @@ Resources:
       LaunchTemplateName: !Sub ${AWS::StackName}-launch-template
       LaunchTemplateData:
         SecurityGroupIds:
-            - !Ref InstanceSecurityGroup
+            - !GetAtt InstanceSecurityGroup.GroupId
         KeyName: !Ref KeyName
         ImageId: !Ref ImageId
         InstanceType: !Ref InstanceType
@@ -49,9 +49,6 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref EC2InstanceTemplate
         Version: !GetAtt EC2InstanceTemplate.LatestVersionNumber
-      AvailabilityZones: 
-        - us-west-2
       MaxSize: '2'
       MinSize: '1'
       DesiredCapacity: '2'
-  

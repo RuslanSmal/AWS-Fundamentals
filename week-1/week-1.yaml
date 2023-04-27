@@ -29,7 +29,8 @@ Resources:
         UserData:
           Fn::Base64: |
             #!/bin/bash
-            sudo yum install java-1.8.0-openjdk
+            sudo yum update -y
+            sudo yum install -y java-1.8.0-openjdk
   InstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -40,8 +41,8 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 8080
-          ToPort: 8080
+          FromPort: 80
+          ToPort: 80
           CidrIp: 0.0.0.0/0
   myASG:
     Type: AWS::AutoScaling::AutoScalingGroup

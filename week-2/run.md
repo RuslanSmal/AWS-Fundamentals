@@ -1,0 +1,1 @@
+terraform apply -var "bucket_name=week-2" -var "keyPair_name=MyKeyPair"

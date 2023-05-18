@@ -25,52 +25,44 @@ variable "keyPair_name" {
   default     = "MyKeyPair"
 }
 
-# resource "aws_iam_policy" "bucket_policy" {
-#   name        = "my-bucket-policy"
-#   path        = "/"
-#   description = "Allow "
-#   policy = jsonencode({
-#     "Version" : "2012-10-17",
-#     "Statement" : [
-#       {
-#         "Sid" : "VisualEditor0",
-#         "Effect" : "Allow",
-#         "Action" : [
-#           "s3:PutObject",
-#           "s3:GetObject",
-#           "s3:ListBucket",
-#           "s3:DeleteObject"
-#         ],
-#         "Resource" : [
-#           "arn:aws:s3:::*/*",
-#           "arn:aws:s3:::week-2"
-#         ]
-#       }
-#     ]
-#   })
-# }
+data "aws_iam_policy_document" "ec2_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
 
-# resource "aws_iam_role" "some_role" {
-#   name = "my_role"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole"
-#         Effect = "Allow"
-#         Sid    = ""
-#         Principal = {
-#           Service = "ec2.amazonaws.com"
-#         }
-#       },
-#     ]
-#   })
-# }
-# resource "aws_iam_role_policy_attachment" "some_bucket_policy" {
-#   role       = aws_iam_role.some_role.name
-#   policy_arn = aws_iam_policy.bucket_policy.arn
-# }
+data "aws_iam_policy_document" "s3_read_access" {
+  statement {
+    actions = ["s3:Get*", "s3:List*"]
+
+    resources = ["arn:aws:s3:::*"]
+  }
+}
+
+resource "aws_iam_role" "ec2_iam_role" {
+  name = "ec2_iam_role"
+
+  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
+}
+
+resource "aws_iam_role_policy" "join_policy" {
+  depends_on = [aws_iam_role.ec2_iam_role]
+  name       = "join_policy"
+  role       = aws_iam_role.ec2_iam_role.name
+
+  policy = data.aws_iam_policy_document.s3_read_access.json
+}
+
+resource "aws_iam_instance_profile" "instance_profile" {
+  name = "instance_profile"
+  role = aws_iam_role.ec2_iam_role.name
+}
+
 resource "aws_security_group" "main" {
   egress = [
     {
@@ -117,6 +109,7 @@ resource "aws_instance" "app_server" {
   instance_type          = "t2.micro"
   key_name               = var.keyPair_name
   vpc_security_group_ids = [aws_security_group.main.id]
+  iam_instance_profile   = aws_iam_instance_profile.instance_profile.name
 
   user_data = <<-EOT
     #!/bin/bash
